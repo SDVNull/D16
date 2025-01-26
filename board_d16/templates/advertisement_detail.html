@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>{{ advertisement.title }}</h1>
+    <p>Категория: {{ advertisement.category }}</p>
+    <p>Автор: {{ advertisement.author }}</p>
+    <p>Дата создания: {{ advertisement.created_at }}</p>
+    <p>Последнее обновление: {{ advertisement.updated_at }}</p>
+    <div>{{ advertisement.content|safe }}</div>
+{% endblock %}

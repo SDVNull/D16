@@ -19,7 +19,7 @@ class Category(models.Model):
     name = models.CharField(max_length=2, choices=CATEGORY_CHOICES, unique=True)
 
     def __str__(self):
-        return self.name
+        return self.get_name_display()
 
 
 class Advertisement(models.Model):
@@ -29,6 +29,8 @@ class Advertisement(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    image = models.ImageField(upload_to='advertisements/', blank=True, null=True)
+    video_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return self.title

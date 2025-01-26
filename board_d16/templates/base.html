@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Задание D16</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<header>
+    <nav>
+        <div>
+            <a href="{% url 'advertisement_list' %}">Главная</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'advertisement_create' %}">Создать объявление</a>
+                <a href="#">Личный кабинет</a>
+            {% endif %}
+        </div>
+        <div>
+            {% if user.is_authenticated %}
+                {% if user.is_staff %}
+                    <a href="{% url 'admin:index' %}">Админ-панель</a>
+                {% endif %}
+                <a href="{% url 'account_logout' %}">Выйти</a>
+            {% else %}
+                <a href="{% url 'account_login' %}">Войти</a>
+                <a href="{% url 'account_signup' %}">Регистрация</a>
+            {% endif %}
+        </div>
+    </nav>
+</header>
+<main>
+    {% block content %}
+    {% endblock %}
+</main>
+<footer>
+    <p>&copy; 2023 MMORPG Board</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Объявления</h1>
+    {% for advertisement in advertisements %}
+        <h2><a href="{% url 'advertisement_detail' advertisement.pk %}">{{ advertisement.title }}</a></h2>
+        <p>Категория: {{ advertisement.category }}</p>
+        <p>Автор: {{ advertisement.author }}</p>
+        <p>Дата создания: {{ advertisement.created_at }}</p>
+    {% endfor %}
+    {% include "pagination.html" with page=page_obj %}
+{% endblock %}
