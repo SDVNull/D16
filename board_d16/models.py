@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 class Category(models.Model):
     CATEGORY_CHOICES = [
-        ('TN', 'Танки'),
+        ('TK', 'Танки'),
         ('HL', 'Хилы'),
         ('DD', 'Дамагеры'),
         ('MC', 'Торговцы'),
@@ -41,7 +41,7 @@ class Response(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    is_accepted = models.BooleanField(default=False)
+    adopted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"Response to {self.advertisement.title} by {self.author.username}"
+        return f"Отклик на объявление {self.advertisement.title} пользователем {self.author.username}"
