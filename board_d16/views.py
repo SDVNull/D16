@@ -7,10 +7,40 @@ from django.conf import settings
 from django.contrib.auth import login
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView
+from django.views.generic import ListView, CreateView, DetailView
 from .forms import AdvertisementForm, ResponseForm
 from .models import Advertisement, Response
 import random
+
+
+class AdvertisementListView(ListView):
+    model = Advertisement
+    template_name = 'advertisement_list.html'
+    context_object_name = 'advertisements'
+    ordering = ['-created_at']
+    paginate_by = 3
+
+
+class AdvertisementDetailView(DetailView):
+    model = Advertisement
+    template_name = 'advertisement_detail.html'
+    context_object_name = 'advertisement'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['response_form'] = ResponseForm()
+        return context
+
+
+class AdvertisementCreateView(LoginRequiredMixin, CreateView):
+    model = Advertisement
+    form_class = AdvertisementForm
+    template_name = 'advertisement_create.html'
+    success_url = reverse_lazy('advertisement_list')
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        return super().form_valid(form)
 
 
 def register_view(request):
@@ -50,41 +80,9 @@ def verify_email(request):
     return render(request, 'registration/verify_email.html')
 
 
-class AdvertisementListView(ListView):
-    model = Advertisement
-    template_name = 'advertisement_list.html'
-    context_object_name = 'advertisements'
-    ordering = ['-created_at']
-    paginate_by = 10
-
-from django.views.generic import DetailView
-from .forms import ResponseForm
-
-class AdvertisementDetailView(DetailView):
-    model = Advertisement
-    template_name = 'advertisement_detail.html'
-    context_object_name = 'advertisement'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['response_form'] = ResponseForm()
-        return context
-
-
-class AdvertisementCreateView(LoginRequiredMixin, CreateView):
-    model = Advertisement
-    form_class = AdvertisementForm
-    template_name = 'advertisement_create.html'
-    success_url = reverse_lazy('advertisement_list')
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
-
 @login_required
-def create_response(request, pk):
-    advertisement = get_object_or_404(Advertisement, pk=pk)
+def create_response(request, ad_id):
+    advertisement = get_object_or_404(Advertisement, id=ad_id)
     if request.method == 'POST':
         form = ResponseForm(request.POST)
         if form.is_valid():
@@ -94,23 +92,25 @@ def create_response(request, pk):
             response.save()
 
             send_mail('Новый отклик на ваше объявление',
-                f'Пользователь {request.user.username} оставил отклик на ваше объявление '
-                f'"{advertisement.title}":\n\n"{response.content}"',
-                settings.DEFAULT_FROM_EMAIL,
-                [advertisement.author.email],
-                fail_silently=False,
-            )
+                      f'Пользователь {request.user.username} оставил отклик на ваше объявление '
+                      f'"{advertisement.title}":\n\n"{response.content}"',
+                      settings.DEFAULT_FROM_EMAIL,
+                      [advertisement.author.email],
+                      fail_silently=False,
+                      )
 
             messages.success(request, 'Ваш отклик успешно отправлен.')
-            return redirect('advertisement_detail', pk=pk)
+            return redirect('advertisement_detail', pk=ad_id)
         else:
             form = ResponseForm()
     return render(request, 'responses/create_response.html', {'form': form, 'advertisement': advertisement})
+
 
 @login_required
 def my_responses(request):
     responses = Response.objects.filter(advertisement__author=request.user).order_by('-created_at')
     return render(request, 'responses/my_responses.html', {'responses': responses})
+
 
 @login_required
 def accept_response(request, response_id):
@@ -128,6 +128,7 @@ def accept_response(request, response_id):
 
     messages.success(request, 'Отклик успешно принят.')
     return redirect('my_responses')
+
 
 @login_required
 def delete_response(request, response_id):
