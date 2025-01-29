@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
@@ -110,6 +111,7 @@ def create_response(request, ad_id):
 def my_responses(request):
     responses = Response.objects.filter(advertisement__author=request.user).order_by('-created_at')
     response_filter = request.GET.get('response_filter')
+
     if response_filter:
         responses = responses.filter(advertisement_id=response_filter)
 

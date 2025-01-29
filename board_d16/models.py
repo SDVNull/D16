@@ -23,14 +23,17 @@ class Category(models.Model):
 
 
 class Advertisement(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, )
     content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     image = models.ImageField(upload_to='advertisements/', blank=True, null=True)
     video_url = models.URLField(blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Объявление"
+        verbose_name_plural = "Объявления"
 
     def __str__(self):
         return self.title
@@ -42,6 +45,10 @@ class Response(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     adopted = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Отклик"
+        verbose_name_plural = "Отклики"
 
     def __str__(self):
         return f"Отклик на объявление {self.advertisement.title} пользователем {self.author.username}"
