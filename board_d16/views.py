@@ -109,7 +109,18 @@ def create_response(request, ad_id):
 @login_required
 def my_responses(request):
     responses = Response.objects.filter(advertisement__author=request.user).order_by('-created_at')
-    return render(request, 'responses/my_responses.html', {'responses': responses})
+    response_filter = request.GET.get('response_filter')
+    if response_filter:
+        responses = responses.filter(advertisement_id=response_filter)
+
+    user_advertisements = Advertisement.objects.filter(author=request.user)
+
+    context = {
+        'responses': responses,
+        'user_advertisements': user_advertisements,
+        'selected_ad': response_filter
+    }
+    return render(request, 'responses/my_responses.html', context)
 
 
 @login_required
